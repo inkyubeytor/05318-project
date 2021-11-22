@@ -1,0 +1,3 @@
+[submodule "RoyalRoadLAPI"]
+	path = RoyalRoadLAPI
+	url = https://github.com/EL-S/RoyalRoadLAPI
