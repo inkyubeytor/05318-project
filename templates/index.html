@@ -1,0 +1,40 @@
+<form method="POST">
+    <input name="search">
+    <input type="submit" name="action" value="Search">
+    <input type="submit" name="action" value="Like">
+    <input type="submit" name="action" value="Neutral">
+    <input type="submit" name="action" value="Dislike">
+    <input type="submit" name="action" value="Remove">
+    <input type="submit" name="action" value="Recommend">
+</form>
+
+{% if rec_mode %}
+
+<h1>Recommendation Results</h1>
+{% for each in rec %}
+<p>{{ each }}</p>
+{% endfor %}
+
+{% else %}
+
+<h1>Search Results</h1>
+{% for each in search %}
+<p>{{ each }}</p>
+{% endfor %}
+
+{% endif %}
+
+<h1>Likes</h1>
+{% for each in likes %}
+<p>{{ each }}</p>
+{% endfor %}
+
+<h1>Dislikes</h1>
+{% for each in dislikes %}
+<p>{{ each }}</p>
+{% endfor %}
+
+<h1>Neutral</h1>
+{% for each in neutral %}
+<p>{{ each }}</p>
+{% endfor %}

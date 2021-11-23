@@ -33,6 +33,14 @@ class Vectorizer:
             else:
                 print(f"Skipping {data_dir}")
 
+    @staticmethod
+    def read_avg_vector(path):
+        vecs = np.load(f"{path}/vecs.npy")
+        count = sum(np.linalg.norm(vec) > 1e-8 for vec in vecs)
+        if count == 0:
+            print(path)
+        return vecs.sum(axis=0) / count
+
 
 if __name__ == "__main__":
     vectorizer = Vectorizer("../data")
