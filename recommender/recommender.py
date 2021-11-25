@@ -45,7 +45,7 @@ class User:
 
 
 class Recommender:
-    def __init__(self, path):
+    def __init__(self, path, emitter=None):
         self.path = path
 
         indexer = Indexer(self.path)
@@ -57,9 +57,30 @@ class Recommender:
 
         self.user = User()
 
-        self.search_results = []
-        self.rec_results = []
-        self.rec_mode = False
+        self.max_dist = 0
+        self.min_dist = 1
+        dists = []
+        for v1 in self.index_vecs:
+            for v2 in self.index_vecs:
+                dist = v1 @ v2
+                dists.append(dist)
+                if dist < self.min_dist:
+                    self.min_dist = dist
+                if dist > self.max_dist:
+                    self.max_dist = dist
+        dists = np.array(dists)
+        scores = np.array([self.scale(d) for d in dists])
+        print(np.mean(scores), np.std(scores))
+
+        if emitter is not None:
+            self.emitter = emitter
+        else:
+            self.emitter = lambda x: None
+
+    def scale(self, score):
+        linear_score = min(1, (score - self.min_dist) /
+                           (self.max_dist - self.min_dist))
+        return int(100 * (linear_score ** 6.66))
 
     def parse_index(self):
         return [entry.replace("-", " ") for entry in self.index]
@@ -72,14 +93,12 @@ class Recommender:
         results = [x for x, _ in sorted(results,
                                         key=lambda y: y[1],
                                         reverse=True)]
-        self.search_results = results
-        self.rec_mode = False
         return results
 
     def match_best(self, string):
         match = process.extractOne(string, self.legible_index)[0]
         if string != match:
-            print(f"Assuming you meant {match}")
+            self.emitter(f"Assuming you meant {match}")
         return self.legible_index.index(match)
 
     def recommend_like_indices(self, indices, recs=5):
@@ -90,9 +109,8 @@ class Recommender:
         scored_indices = [(i, score) for i, score in enumerate(scores)
                           if i not in exclude]
         scored_indices.sort(key=lambda x: x[1], reverse=True)
-        recs = [self.legible_index[i] for i, _ in scored_indices[:recs]]
-        self.rec_results = recs
-        self.rec_mode = True
+        recs = [f"{self.legible_index[i]}: {self.scale(score)}"
+                for i, score in scored_indices[:recs]]
         return recs
 
     def recommend_like_names(self, names, recs=5):
@@ -137,7 +155,6 @@ class Recommender:
     @property
     def neutral(self):
         return [self.legible_index[i] for i in self.user.neutral]
-
 
 
 if __name__ == "__main__":
