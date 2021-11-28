@@ -3,6 +3,8 @@ import os
 import numpy as np
 from thefuzz import process
 
+UNLIKE_SCALE = 0.1
+
 
 class Indexer:
     def __init__(self, path):
@@ -70,7 +72,6 @@ class Recommender:
                     self.max_dist = dist
         dists = np.array(dists)
         scores = np.array([self.scale(d) for d in dists])
-        print(np.mean(scores), np.std(scores))
 
         if emitter is not None:
             self.emitter = emitter
@@ -83,7 +84,7 @@ class Recommender:
         return int(100 * (linear_score ** 6.66))
 
     def parse_index(self):
-        return [entry.replace("-", " ") for entry in self.index]
+        return [entry.replace("-", " ").title() for entry in self.index]
 
     def search(self, string, k=5):
         results = process.extractBests(string,
@@ -101,15 +102,30 @@ class Recommender:
             self.emitter(f"Assuming you meant {match}")
         return self.legible_index.index(match)
 
-    def recommend_like_indices(self, indices, recs=5):
+    def recommend_like_indices(self, indices, recs=5, unlike=None):
+        if not indices:
+            self.emitter("No works were submitted to the recommender.")
+            nums = np.random.randint(0, len(self.index_vecs), size=recs)
+            return [self.legible_index[i] for i in nums]
         exclude = self.user.read | set(indices)
+
         composite_vec = sum(self.index_vecs[i] for i in indices)
         composite_vec /= np.linalg.norm(composite_vec)
         scores = self.index_vecs @ composite_vec
-        scored_indices = [(i, score) for i, score in enumerate(scores)
+
+        if unlike:
+            unlike_composite = sum(self.index_vecs[i] for i in unlike)
+            unlike_composite /= np.linalg.norm(unlike_composite)
+            scores_u = self.index_vecs @ unlike_composite
+            scores_u *= UNLIKE_SCALE
+        else:
+            scores_u = np.zeros_like(scores)
+
+        scored_indices = [(i, score_l)
+                          for i, score_l in enumerate(scores)
                           if i not in exclude]
-        scored_indices.sort(key=lambda x: x[1], reverse=True)
-        recs = [f"{self.legible_index[i]}: {self.scale(score)}"
+        scored_indices.sort(key=lambda x: x[1] - scores_u[x[0]], reverse=True)
+        recs = [f" {self.scale(score)} | {self.legible_index[i]}"
                 for i, score in scored_indices[:recs]]
         return recs
 
@@ -118,7 +134,7 @@ class Recommender:
         return self.recommend_like_indices(matches, recs)
 
     def recommend_like_likes(self):
-        return self.recommend_like_indices(list(self.user.liked))
+        return self.recommend_like_indices(list(self.user.liked), unlike=list(self.user.disliked))
 
     def add_like(self, s):
         i = self.match_best(s)

@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, redirect, flash
+from flask import Flask, render_template, request, redirect, url_for
 from recommender.recommender import Recommender
+import random
 
 app = Flask(__name__)
 
@@ -15,14 +16,33 @@ class AppState:
         self.add_neutral = self.R.add_neutral
         self.remove = self.R.remove
 
-        self.emission = None
+        self.emissions = []
 
     def set_emitter(self, msg):
-        self.emission = msg
+        self.emissions.append(msg)
+
+    @property
+    def messages(self):
+        return self.emissions[:-4:-1]
+
+    def remove_rec(self, rec):
+        old_emissions = self.emissions.copy()
+        self.rec_results.remove(rec)
+        self.emissions = old_emissions
 
     def recommend_like_likes(self):
         self.rec_results = self.R.recommend_like_likes()
         self.rec_mode = True
+
+    def recommend_like_subset(self):
+        try:
+            names = ", ".join(random.sample(self.likes, k=3))
+            self.emissions.append(f"Recommending based on {names}")
+            old_emissions = self.emissions.copy()
+            self.recommend_like_names(names)
+            self.emissions = old_emissions
+        except:
+            self.emissions.append("Not enough likes to sample from (min 3).")
 
     def recommend_like_names(self, text):
         self.rec_results = self.R.recommend_like_names(text.split(","))
@@ -56,7 +76,8 @@ def index():
                            neutral=S.neutral,
                            search=S.search_results,
                            rec=S.rec_results,
-                           rec_mode=S.rec_mode)
+                           rec_mode=S.rec_mode,
+                           messages=S.messages)
 
 
 @app.route('/recommend', methods=['POST'])
@@ -64,8 +85,44 @@ def recommend():
     text = request.form["rec"]
     if text:
         S.recommend_like_names(text)
-    else:
-        S.recommend_like_likes()
+    return redirect("/")
+
+
+@app.route('/recommend-library', methods=['POST'])
+def recommend_library():
+    S.recommend_like_likes()
+    return redirect("/")
+
+
+@app.route('/recommend-subset', methods=['POST'])
+def recommend_subset():
+    S.recommend_like_subset()
+    return redirect("/")
+
+
+@app.route('/exclude', methods=['POST'])
+def exclude():
+    i = request.form["exclude"]
+    S.add_neutral(i)
+    S.remove_rec(i)
+    return redirect("/")
+
+
+@app.route('/add', methods=['POST'])
+def add():
+    try:
+        i = request.form["addLike"]
+        S.add_like(i)
+    except KeyError:
+        i = request.form["addDislike"]
+        S.add_dislike(i)
+    return redirect("/")
+
+
+@app.route('/remove', methods=['POST'])
+def remove():
+    i = request.form["exclude"]
+    S.remove(i)
     return redirect("/")
 
 
@@ -86,7 +143,11 @@ def search():
     return redirect("/")
 
 
+@app.route('/help')
+def help():
+    return render_template('help.html')
+
+
 if __name__ == "__main__":
     app.config['SESSION_TYPE'] = 'filesystem'
     app.run(debug=True)
-

@@ -10,108 +10,210 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
+
+<div style="height:2em"></div>
 <div class="container">
-    Welcome to the content-based recommender system! This
-    system can recommend web fiction from the the popular website
-    <a href="royalroad.com">RoyalRoad</a> based on what stories you
-    input or add to your library.
-
-    Note that the system can currently only work with the top 1000 stories
-    (for either the library or recommendations).
-
-    The system will provide a similarity score indicating how close a
-    recommendation is to a story or set of stories. These scores have an
-    average similarity of 50.
-</div>
-
-
-<div class="container">
-    <div class="row">
-        <div class="column">
-            <h1>Recommender</h1>
-            <form method="POST" action="/recommend">
-                <div class="form-group">
-                    <input name="rec">
-                    <div>
-                        <button class="btn btn-primary" type="submit"
-                                name="action"
-                                value="Recommend">Recommend
-                        </button>
-                    </div>
-                </div>
-            </form>
+    <div class="row justify-content-center">
+        <div class="col-6">
+            Welcome to the content-based recommender system! This
+            system can recommend web fiction from the the popular website
+            <a href="royalroad.com">RoyalRoad</a> based on what stories you
+            input or add to your library. For more information on how the
+            algorithm
+            works, click <a href="/help">here</a>.
         </div>
     </div>
 </div>
-{% if rec_mode %}
-<div class="container">
-    <h1>Recommendation Results</h1>
-    {% for each in rec %}
-    <p>{{ each }}</p>
-    {% endfor %}
-</div>
-{% endif %}
+<div style="height:1em"></div>
 
 <div class="container">
-    <h1>Search</h1>
-    <form method="POST" action="/search">
-        <div class="form-group">
-            <input name="search">
-            <div class="col">
-                <div><input type="submit" name="action" value="Search">
-                </div>
-                <div>
-                    <input type="submit" name="action" value="Like">
-                    <input type="submit" name="action" value="Neutral">
-                    <input type="submit" name="action" value="Dislike">
-                    <input type="submit" name="action" value="Remove">
+    <div class="row">
+        <div class="col">
+            {% if rec_mode %}
+            <h1>Recommendations</h1>
+            <ul class="list-group">
+                {% for each in rec %}
+                <li class="list-group-item">
+                    <form method="POST" action="/exclude">
+                        <button class="btn btn-danger"
+                                name="exclude"
+                                value="{{each}}">
+                            X
+                        </button>
+                        <span>{{ each }}</span>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <h1>Search Results</h1>
+            <ul class="list-group">
+                {% for each in search %}
+                <form method="POST" action="/add">
+                    <button class="btn btn-primary"
+                            name="addLike"
+                            value="{{each}}">
+                        +
+                    </button>
+                    <button class="btn btn-warning"
+                            name="addDislike"
+                            value="{{each}}">
+                        -
+                    </button>
+                    <span>{{ each }}</span>
+                </form>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        <div class="col">
+            <div class="row">
+                <h1>Search</h1>
+                <form method="POST" action="/search">
+                    <div class="form-group">
+                        <input name="search">
+                        <button class="btn btn-primary" type="submit"
+                                name="action"
+                                value="Search">Search
+                        </button>
+                        <div style="height:0.5em"></div>
+                        <!--div class="col">
+                            <div>
+                                <button class="btn btn-outline-primary"
+                                        type="submit" name="action"
+                                        value="Like">Like
+                                </button>
+                                <button class="btn btn-outline-primary"
+                                        type="submit" name="action"
+                                        value="Neutral">Exclude
+                                </button>
+                                <button class="btn btn-outline-primary"
+                                        type="submit" name="action"
+                                        value="Dislike">Dislike
+                                </button>
+                                <button class="btn btn-danger"
+                                        type="submit" name="action"
+                                        value="Remove">Remove
+                                </button>
+                            </div-->
+                    </div>
+                </form>
+            </div>
+            <div class="row">
+                <h1>Recommend</h1>
+                <div class="col">
+                    <!--form method="POST" action="/recommend">
+                        <div class="form-group">
+                            <input name="rec">
+                            <button class="btn btn-primary"
+                                    type="submit"
+                                    name="action"
+                                    value="Recommend">Recommend
+                            </button>
+                        </div>
+                    </form-->
+                    <div style="height:0.5em"></div>
+                    <form method="POST" action="/recommend-library">
+                        <button class="btn btn-primary"
+                                type="submit"
+                                name="action"
+                                value="Recommend">Recommend Using Entire Library
+                        </button>
+                    </form>
+                    <div style="height:0.5em"></div>
+                    <form method="POST" action="/recommend-subset">
+                        <button class="btn btn-primary"
+                                type="submit"
+                                name="action"
+                                value="Recommend">Recommend Using Random Subset
+                        </button>
+                    </form>
+                    <div style="height:0.5em"></div>
+                    <form method="POST" action="/recommend">
+                        <div class="form-group">
+                            <input name="rec">
+                            <div>
+                                <button class="btn btn-primary" type="submit"
+                                        name="action"
+                                        value="Recommend">Recommend Using Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    </form>
+        <div class="col">
+            <h2 class="text-center">Messages</h2>
+            {% for each in messages %}
+            <div class="card">
+                <div class="card-body">{{ each }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
-
-
-{% if not rec_mode %}
-<div class="container">
-    <h1>Search Results</h1>
-    {% for each in search %}
-    <p>{{ each }}</p>
-    {% endfor %}
-</div>
-{% endif %}
 
 <div style="height:5em"></div>
 
 <div class="container">
-    <div class="d-flex justify-content-center"><h1>Your Library</h1></div>
+    <h1 class="text-center">Your Library</h1>
     <div class="row">
         <div class="col">
-            <h2>Likes</h2>
+            <h2 class="text-center">Likes</h2>
             <ul class="list-group">
                 {% for each in likes %}
-                <li class="list-group-item">{{ each }}</li>
+                <li class="list-group-item">
+                    <form method="POST" action="/remove">
+                        <button class="btn btn-danger"
+                                name="exclude"
+                                value="{{each}}">
+                            X
+                        </button>
+                        <span>{{ each }}</span>
+                    </form>
+                </li>
                 {% endfor %}
             </ul>
         </div>
         <div class="col">
-            <h2>Dislikes</h2>
+            <h2 class="text-center">Dislikes</h2>
             <ul class="list-group">
                 {% for each in dislikes %}
-                <li class="list-group-item">{{ each }}</li>
+                <li class="list-group-item">
+                    <form method="POST" action="/remove">
+                        <button class="btn btn-danger"
+                                name="exclude"
+                                value="{{each}}">
+                            X
+                        </button>
+                        <span>{{ each }}</span>
+                    </form>
+                </li>
                 {% endfor %}
             </ul>
         </div>
         <div class="col">
-            <h2>Neutral</h2>
+            <h2 class="text-center">Exclusions</h2>
             <ul class="list-group">
                 {% for each in neutral %}
-                <li class="list-group-item">{{ each }}</li>
+                <li class="list-group-item">
+                    <form method="POST" action="/remove">
+                        <button class="btn btn-danger"
+                                name="exclude"
+                                value="{{each}}">
+                            X
+                        </button>
+                        <span>{{ each }}</span>
+                    </form>
+                </li>
                 {% endfor %}
             </ul>
         </div>
     </div>
 </div>
+
+<div style="height:5em"></div>
 
 
 </body>
