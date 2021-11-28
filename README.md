@@ -25,3 +25,18 @@ I then averaged these word vectors and normalized them to create the vector
 representations of my chapters.
 
 I built the interface using Flask and Bootstrap.
+
+I wrote the rest of the recommendation system by myself, including:
+ * Creating an index from downloaded works
+ * Creating the vectors for downloaded works from spaCy output
+ * Creating an easily human-readable form of the index.
+ * Computing the composite vector from a set of fictions.
+ * Computing similarity scores between composite vectors and all works.
+ * Computing dissimilarity scores between composite vectors and all works.
+ * Scaling the scores with a polynomial transform to have mean 50.
+ * Making a combined ranking with similarity and dissimilarity scores.
+ * Using fuzzy text search of lists of titles to provide recommender rankings.
+ * Creating a state representation for the user's likes, dislikes, and excludes.
+ * Creating a state manager for the Flask interface that processes requests
+    and updates UI data accordingly.
+ * Building out the UI and Flask endpoints called by user interactions.
