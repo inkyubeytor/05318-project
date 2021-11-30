@@ -17,7 +17,8 @@
         <div class="col-6">
             Welcome to the content-based recommender system! This
             system can recommend web fiction from the the popular website
-            <a href="royalroad.com">RoyalRoad</a> based on what stories you
+            <a href="https://royalroad.com">RoyalRoad</a> based on what stories
+            you
             input or add to your library. For more information on how the
             algorithm
             works, click <a href="/help">here</a>.
@@ -49,19 +50,21 @@
             <h1>Search Results</h1>
             <ul class="list-group">
                 {% for each in search %}
-                <form method="POST" action="/add">
-                    <button class="btn btn-primary"
-                            name="addLike"
-                            value="{{each}}">
-                        +
-                    </button>
-                    <button class="btn btn-warning"
-                            name="addDislike"
-                            value="{{each}}">
-                        -
-                    </button>
-                    <span>{{ each }}</span>
-                </form>
+                <li class="list-group-item">
+                    <form method="POST" action="/add">
+                        <button class="btn btn-primary"
+                                name="addLike"
+                                value="{{each}}">
+                            +
+                        </button>
+                        <button class="btn btn-warning"
+                                name="addDislike"
+                                value="{{each}}">
+                            -
+                        </button>
+                        <span>{{ each }}</span>
+                    </form>
+                </li>
                 {% endfor %}
             </ul>
             {% endif %}
@@ -144,7 +147,7 @@
             </div>
         </div>
         <div class="col">
-            <h2 class="text-center">Messages</h2>
+            <h1 class="text-center">Messages</h1>
             {% for each in messages %}
             <div class="card">
                 <div class="card-body">{{ each }}</div>
