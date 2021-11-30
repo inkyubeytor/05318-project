@@ -13,13 +13,17 @@ class AppState:
         self.rec_mode = False
         self.add_like = self.R.add_like
         self.add_dislike = self.R.add_dislike
-        self.add_neutral = self.R.add_neutral
         self.remove = self.R.remove
 
         self.emissions = []
 
     def set_emitter(self, msg):
         self.emissions.append(msg)
+
+    def add_neutral(self, s):
+        old_emissions = self.emissions.copy()
+        self.R.add_neutral(s)
+        self.emissions = old_emissions
 
     @property
     def messages(self):
