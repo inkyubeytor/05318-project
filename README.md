@@ -22,10 +22,12 @@ The entry point is `flask_main.py`.
 ## Open-Source Software Used
 
 I performed web scraping with requests, BeautifoulSoup4, and an existing 
-RoyalRoad scraper called RoyalRoadLAPI. I wrote my own code with bs4 to scrape
-the list of popular fictions I used. I used RoyalRoadLAPI (with modifications 
--- see repo for changes) to get the list of chapter links for each work. I used
-my own code to scrape the contents of each chapter.
+RoyalRoad scraper called RoyalRoadLAPI.
+I wrote my own code (the `RRIndexScraper` class) with bs4 to scrape the list of 
+popular fictions I used. I used RoyalRoadLAPI (with modifications -- see repo 
+for changes) to get the list of chapter links for each work.
+I used my own code (the `RRScraper` class) to scrape the contents of each 
+chapter.
 
 I used the fuzzy matching package `thefuzz` to build the search engine that 
 allows searching fictions by name.
@@ -35,8 +37,10 @@ I then averaged these word vectors and normalized them to create the vector
 representations of my chapters.
 
 I built the interface using Flask and Bootstrap.
+The files for the interface are located in the `/templates` directory.
 
-I wrote the rest of the recommendation system by myself, including:
+I wrote the rest of the recommendation system by myself in the `/recommender`
+directory, including:
  * Creating an index from downloaded works
  * Creating the vectors for downloaded works from spaCy output
  * Creating an easily human-readable form of the index.

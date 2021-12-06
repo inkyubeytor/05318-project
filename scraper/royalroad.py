@@ -4,6 +4,7 @@ import time
 import os
 import RoyalRoadLAPI.royalroadlapi as rr
 
+
 class RRIndexScraper:
     def __init__(self, out_dir, delay=5):
         self.base = "https://www.royalroad.com"
